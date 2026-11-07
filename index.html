@@ -8,7 +8,7 @@
   body { font-family: sans-serif; text-align: center; padding: 40px 16px;
          background: var(--tg-theme-bg-color, #fff); color: var(--tg-theme-text-color, #000); }
   .code { display: flex; justify-content: center; gap: 12px; margin: 30px 0; }
-  .code input { width: 56px; height: 64px; font-size: 28px; text-align: center;
+  .code input { width: 48px; height: 64px; font-size: 28px; text-align: center;
                 border: 2px solid #999; border-radius: 12px; }
   button { padding: 14px 32px; font-size: 18px; border: none; border-radius: 12px;
            background: #2481cc; color: #fff; }
@@ -16,8 +16,9 @@
 </style>
 </head>
 <body>
-  <h2>Введите 4-значный код</h2>
+  <h2>Введите 5-значный код</h2>
   <div class="code">
+    <input type="tel" maxlength="1" inputmode="numeric">
     <input type="tel" maxlength="1" inputmode="numeric">
     <input type="tel" maxlength="1" inputmode="numeric">
     <input type="tel" maxlength="1" inputmode="numeric">
@@ -39,7 +40,7 @@
     input.addEventListener("input", () => {
       input.value = input.value.replace(/\D/g, "");
       if (input.value && i < inputs.length - 1) inputs[i + 1].focus();
-      btn.disabled = getCode().length !== 4;
+      btn.disabled = getCode().length !== 5;
     });
     input.addEventListener("keydown", e => {
       if (e.key === "Backspace" && !input.value && i > 0) inputs[i - 1].focus();
