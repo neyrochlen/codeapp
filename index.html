@@ -64,6 +64,7 @@
     <div class="wheel-wrap">
       <div class="wheel-pointer"></div>
       <div class="wheel" id="wheel">
+        <!-- ВСТАВЛЯТЬ 10 КАРТИНОК СЮДА, по одной <img> на каждый сектор -->
         <img src="https://i.postimg.cc/fLHnC7fX/images.png" alt="">
         <img src="ССЫЛКА_НА_КАРТИНКУ_2" alt="">
         <img src="ССЫЛКА_НА_КАРТИНКУ_3" alt="">
@@ -173,12 +174,10 @@
 
   askContactBtn.addEventListener("click", () => {
     tg.requestContact((granted) => {
-      // granted === true, если пользователь согласился поделиться контактом
       if (granted) {
         stepContact.classList.remove("active");
         stepCode.classList.add("active");
       }
-      // если отказался — остаёмся на том же шаге, можно показать сообщение при желании
     });
   });
 
