@@ -6,13 +6,52 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   * { box-sizing: border-box; }
-  body { font-family: sans-serif; text-align: center; margin: 0; padding: 20px 16px 90px;
-         background: #000; color: #fff; }
+  html, body { overflow-x: hidden; }
+
+  body {
+    font-family: sans-serif; text-align: center; margin: 0; padding: 20px 16px 90px;
+    background-color: #000;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><g fill="%23ffffff" fill-opacity="0.35"><path d="M20 6 L22 15 L31 15 L23 20 L26 29 L20 23 L14 29 L17 20 L9 15 L18 15 Z"/><path d="M95 30 L96 35 L101 35 L97 38 L98 43 L95 40 L92 43 L93 38 L89 35 L94 35 Z"/><path d="M55 70 L57 78 L65 78 L58 83 L60 91 L55 86 L50 91 L52 83 L45 78 L53 78 Z"/><path d="M115 95 L116 100 L121 100 L117 103 L118 108 L115 105 L112 108 L113 103 L109 100 L114 100 Z"/><path d="M15 110 L16 115 L21 115 L17 118 L18 123 L15 120 L12 123 L13 118 L9 115 L14 115 Z"/></g></svg>');
+    background-repeat: repeat;
+    background-size: 140px 140px;
+    color: #fff;
+  }
 
   .tab-content { display: none; }
   .tab-content.active { display: block; }
 
-  .gallery img { width: 100%; max-width: 360px; border-radius: 16px; margin-top: 16px; }
+  .wheel-wrap {
+    position: relative;
+    width: min(300px, 80vw);
+    height: min(300px, 80vw);
+    margin: 30px auto 10px;
+  }
+
+  .wheel {
+    width: 100%; height: 100%; border-radius: 50%;
+    position: relative; overflow: hidden;
+    border: 4px solid #2481cc;
+    transition: transform 4s cubic-bezier(0.17, 0.67, 0.16, 0.99);
+    background: #111;
+  }
+
+  .wheel img {
+    position: absolute; top: 50%; left: 50%;
+    width: 60px; height: 60px; object-fit: cover; border-radius: 8px;
+  }
+
+  .wheel-pointer {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 22px solid #2481cc;
+    z-index: 5;
+  }
+
+  #spin { margin-top: 10px; padding: 14px 32px; font-size: 18px; border: none; border-radius: 12px;
+          background: #2481cc; color: #fff; }
+  #spin:disabled { opacity: 0.5; }
 
   .code { display: flex; justify-content: center; gap: 10px; margin: 30px 0; }
   .code input { width: 48px; height: 64px; font-size: 28px; text-align: center;
@@ -30,15 +69,28 @@
                            border-radius: 0; font-size: 15px; color: #777;
                            display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .tabbar button.tab-btn.active { color: #2481cc; font-weight: bold; }
-  .tabbar .icon { font-size: 22px; }
 </style>
 </head>
 <body>
 
   <div id="tab1" class="tab-content active">
-    <div class="gallery">
-      <img src="https://i.postimg.cc/c1XfBdJF/ef738952-b7e9-487c-91bb-c32ac07c64d8.jpg" alt="">
+    <div class="wheel-wrap">
+      <div class="wheel-pointer"></div>
+      <div class="wheel" id="wheel">
+        <!-- ВСТАВЛЯТЬ 10 КАРТИНОК СЮДА, по одной <img> на каждый сектор -->
+        <img src="https://i.postimg.cc/fLHnC7fX/images.png" alt="">
+        <img src="ССЫЛКА_НА_КАРТИНКУ_2" alt="">
+        <img src="ССЫЛКА_НА_КАРТИНКУ_3" alt="">
+        <img src="ССЫЛКА_НА_КАРТИНКУ_4" alt="">
+        <img src="ССЫЛКА_НА_КАРТИНКУ_5" alt="">
+        <img src="ССЫЛКА_НА_КАРТИНКУ_6" alt="">
+        <img src="ССЫЛКА_НА_КАРТИНКУ_7" alt="">
+        <img src="ССЫЛКА_НА_КАРТИНКУ_8" alt="">
+        <img src="ССЫЛКА_НА_КАРТИНКУ_9" alt="">
+        <img src="ССЫЛКА_НА_КАРТИНКУ_10" alt="">
+      </div>
     </div>
+    <button id="spin">Крутить 🎡</button>
   </div>
 
   <div id="tab2" class="tab-content">
@@ -54,7 +106,7 @@
   </div>
 
   <div class="tabbar">
-    <button class="tab-btn active" data-tab="tab1"><img src="ССЫЛКА_НА_КАРТИНКУ" style="width:22px;height:22px;"></button>
+    <button class="tab-btn active" data-tab="tab1">🎡</button>
     <button class="tab-btn" data-tab="tab2">Вход</button>
   </div>
 
@@ -73,6 +125,29 @@
       btn.classList.add("active");
       document.getElementById(btn.dataset.tab).classList.add("active");
     });
+  });
+
+  const wheel = document.getElementById("wheel");
+  const images = wheel.querySelectorAll("img");
+  const radius = 95;
+  const count = images.length;
+
+  images.forEach((img, i) => {
+    const angle = (360 / count) * i;
+    img.style.transform =
+      `translate(-50%, -50%) rotate(${angle}deg) translate(0, -${radius}px) rotate(-${angle}deg)`;
+  });
+
+  const spinBtn = document.getElementById("spin");
+  let currentRotation = 0;
+
+  spinBtn.addEventListener("click", () => {
+    spinBtn.disabled = true;
+    const extraSpins = 5;
+    const randomStop = Math.floor(Math.random() * 360);
+    currentRotation += extraSpins * 360 + randomStop;
+    wheel.style.transform = `rotate(${currentRotation}deg)`;
+    setTimeout(() => { spinBtn.disabled = false; }, 4200);
   });
 
   const inputs = document.querySelectorAll(".code input");
