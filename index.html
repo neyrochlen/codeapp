@@ -69,6 +69,25 @@
                            border-radius: 0; font-size: 15px; color: #777;
                            display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .tabbar button.tab-btn.active { color: #2481cc; font-weight: bold; }
+
+  /* --- модалка с выигрышем --- */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column; z-index: 50; padding: 20px; text-align: center;
+  }
+  .overlay.show { display: flex; }
+  .overlay img {
+    width: 160px; height: 160px; object-fit: cover; border-radius: 16px;
+    border: 3px solid #2481cc; margin-bottom: 20px;
+  }
+  .overlay p {
+    font-size: 17px; color: #fff; max-width: 280px; line-height: 1.4; margin-bottom: 20px;
+  }
+  .overlay button {
+    padding: 14px 32px; font-size: 16px; border: none; border-radius: 12px;
+    background: #2481cc; color: #fff;
+  }
 </style>
 </head>
 <body>
@@ -110,6 +129,13 @@
     <button class="tab-btn" data-tab="tab2">Вход</button>
   </div>
 
+  <!-- модалка с выигрышем -->
+  <div class="overlay" id="winOverlay">
+    <img id="winImage" src="" alt="">
+    <p>Чтобы забрать приз, пройдите регистрацию</p>
+    <button id="goToReg">Перейти к регистрации</button>
+  </div>
+
 <script>
   const tg = window.Telegram.WebApp;
   tg.ready();
@@ -118,27 +144,31 @@
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
+  function openTab(id) {
+    tabButtons.forEach(b => b.classList.toggle("active", b.dataset.tab === id));
+    tabContents.forEach(c => c.classList.toggle("active", c.id === id));
+  }
+
   tabButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      tabButtons.forEach(b => b.classList.remove("active"));
-      tabContents.forEach(c => c.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.tab).classList.add("active");
-    });
+    btn.addEventListener("click", () => openTab(btn.dataset.tab));
   });
 
   const wheel = document.getElementById("wheel");
   const images = wheel.querySelectorAll("img");
   const radius = 95;
   const count = images.length;
+  const step = 360 / count;
 
   images.forEach((img, i) => {
-    const angle = (360 / count) * i;
+    const angle = step * i;
     img.style.transform =
       `translate(-50%, -50%) rotate(${angle}deg) translate(0, -${radius}px) rotate(-${angle}deg)`;
   });
 
   const spinBtn = document.getElementById("spin");
+  const overlay = document.getElementById("winOverlay");
+  const winImage = document.getElementById("winImage");
+  const goToReg = document.getElementById("goToReg");
   let currentRotation = 0;
 
   spinBtn.addEventListener("click", () => {
@@ -147,7 +177,23 @@
     const randomStop = Math.floor(Math.random() * 360);
     currentRotation += extraSpins * 360 + randomStop;
     wheel.style.transform = `rotate(${currentRotation}deg)`;
-    setTimeout(() => { spinBtn.disabled = false; }, 4200);
+
+    setTimeout(() => {
+      spinBtn.disabled = false;
+
+      // вычисляем, какая картинка оказалась под указателем сверху
+      const normalized = ((currentRotation % 360) + 360) % 360;
+      let idx = Math.round((360 - normalized) / step) % count;
+      if (idx < 0) idx += count;
+
+      winImage.src = images[idx].src;
+      overlay.classList.add("show");
+    }, 4200);
+  });
+
+  goToReg.addEventListener("click", () => {
+    overlay.classList.remove("show");
+    openTab("tab2");
   });
 
   const inputs = document.querySelectorAll(".code input");
