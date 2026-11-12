@@ -291,15 +291,16 @@ spinBtn.addEventListener("click", () => {
   if (spinUsed) { usedOverlay.classList.add("show"); return; }
   spinBtn.disabled = true;
   const target = currentRot + 5 * 360 + Math.floor(Math.random() * 360);
-  animateSpin(currentRot, target, 4000, () => {
+animateSpin(currentRot, target, 4000, () => {
     spinUsed = true;
+    spinBtn.disabled = false; // ← возвращаем кнопку, чтобы клики работали
+    spinBtn.style.opacity = "0.5"; // ← визуально показываем, что использована
     const norm = ((target % 360) + 360) % 360;
     let idx = Math.round((360 - norm) / STEP) % COUNT;
     if (idx < 0) idx += COUNT;
     winImage.src = IMG_SRCS[idx];
     overlay.classList.add("show");
   });
-});
 
 goToReg.addEventListener("click", () => {
   overlay.classList.remove("show");
