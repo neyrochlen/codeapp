@@ -12,7 +12,7 @@ html, body { overflow-x: hidden; min-height: 100%; }
 
 body {
   font-family: sans-serif; text-align: center;
-  padding: 4px 16px 90px; color: #fff; min-height: 100vh;
+  padding: 56px 16px 90px; color: #fff; min-height: 100vh;
 }
 
 body::before {
@@ -28,9 +28,15 @@ body::before {
   background-size: 100% 100%, 100% 100%, 100% 100%, 500px 500px;
 }
 
-.site-header { margin-bottom: 8px; margin-top: -10px; }
+/* --- Закреплённая шапка --- */
+.site-header {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 30; padding: 8px 0 6px;
+  background: rgba(5,8,15,0.7);
+  backdrop-filter: blur(8px);
+}
 .site-title {
-  font-size: 30px; font-weight: 800; letter-spacing: 3px;
+  font-size: 28px; font-weight: 800; letter-spacing: 3px;
   background: linear-gradient(135deg, #a0d4ff 0%, #3d9eff 45%, #a78bfa 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -43,6 +49,7 @@ body::before {
   filter: drop-shadow(0 0 12px rgba(167,139,250,0.6));
 }
 
+/* --- Вкладки --- */
 .tab-content { display: none; }
 .tab-content.active {
   display: flex; flex-direction: column;
@@ -50,6 +57,7 @@ body::before {
   min-height: calc(100vh - 150px);
 }
 
+/* --- Колесо --- */
 .wheel-wrap {
   position: relative;
   width: min(280px, 78vw);
@@ -110,6 +118,7 @@ body::before {
   cursor: pointer;
 }
 
+/* --- Оверлеи --- */
 .used-overlay {
   display: none; position: fixed; inset: 0;
   background: rgba(5,8,15,.92); backdrop-filter: blur(10px);
@@ -142,6 +151,7 @@ button#send, button#askContact {
 }
 button#send:disabled { opacity: 0.4; box-shadow: none; }
 
+/* --- Таббар --- */
 .tabbar {
   position: fixed; bottom: 0; left: 0; right: 0; display: flex;
   border-top: 1px solid rgba(61,158,255,.15);
@@ -154,6 +164,7 @@ button#send:disabled { opacity: 0.4; box-shadow: none; }
 }
 .tabbar button.tab-btn.active { color: #3d9eff; font-weight: bold; }
 
+/* --- Оверлей выигрыша --- */
 .overlay {
   position: fixed; inset: 0;
   background: rgba(5,8,15,.92); backdrop-filter: blur(10px);
@@ -177,10 +188,12 @@ button#send:disabled { opacity: 0.4; box-shadow: none; }
 </head>
 <body>
 
+<!-- Закреплённый заголовок -->
+<div class="site-header">
+  <div class="site-title">Cosmo <span>Drop</span></div>
+</div>
+
 <div id="tab1" class="tab-content active">
-  <div class="site-header">
-    <div class="site-title">Cosmo <span>Drop</span></div>
-  </div>
   <div class="wheel-wrap">
     <div class="wheel-pointer"></div>
     <div class="wheel" id="wheel">
@@ -192,9 +205,6 @@ button#send:disabled { opacity: 0.4; box-shadow: none; }
 </div>
 
 <div id="tab2" class="tab-content">
-  <div class="site-header">
-    <div class="site-title">Cosmo <span>Drop</span></div>
-  </div>
   <div id="stepContact" class="step active">
     <h2>Вход</h2>
     <p>Чтобы продолжить, отправьте свой контакт</p>
